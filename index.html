@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HN Reader</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f6f6ef;
+            color: #000;
+            line-height: 1.5;
+        }
+
+        .header {
+            background: #ff6600;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-weight: bold;
+            color: white;
+            font-size: 18px;
+            text-decoration: none;
+        }
+
+        .nav {
+            display: flex;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .nav a, .nav button {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 3px;
+            transition: background 0.2s;
+        }
+
+        .nav a:hover, .nav button:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .nav a.active {
+            background: rgba(255,255,255,0.3);
+            font-weight: 600;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-left: auto;
+        }
+
+        .time-filter {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        .story-list {
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .story {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            gap: 15px;
+            transition: background 0.2s;
+        }
+
+        .story:hover {
+            background: #fafafa;
+        }
+
+        .story:last-child {
+            border-bottom: none;
+        }
+
+        .rank {
+            color: #999;
+            font-size: 14px;
+            min-width: 30px;
+            text-align: right;
+        }
+
+        .left-stats {
+            width: 64px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+            font-size: 13px;
+            color: #666;
+            min-width: 64px;
+        }
+
+        .left-stats .comments {
+            font-weight: 600;
+            color: #333;
+            font-size: 15px;
+        }
+
+        .left-stats .points {
+            color: #ff6600;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .content {
+            flex: 1;
+        }
+
+        .title-row {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #000;
+            text-decoration: none;
+        }
+
+        .title:hover {
+            color: #ff6600;
+        }
+
+        .title:visited {
+            color: #828282;
+        }
+
+        .domain {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .meta {
+            display: flex;
+            gap: 12px;
+            font-size: 13px;
+            color: #666;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .meta a {
+            color: #666;
+            text-decoration: none;
+        }
+
+        .meta a:hover {
+            color: #ff6600;
+            text-decoration: underline;
+        }
+
+        .points {
+            color: #ff6600;
+            font-weight: 500;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #ff6600;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fff0f0;
+            border: 1px solid #ffcccc;
+            color: #cc0000;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+
+        .filters {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .date-header {
+            background: #fff5eb; /* pale orange */
+            padding: 8px 12px;
+            font-weight: 700;
+            color: #ff6600;
+            border-radius: 6px 6px 0 0;
+            margin-top: 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .date-separator {
+            height: 1px;
+            background: #eee;
+            margin: 8px 0 16px 0;
+            border-radius: 1px;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .filter-group label {
+            font-size: 13px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .filter-group select {
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 13px;
+            background: white;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .rank {
+                min-width: 20px;
+                font-size: 12px;
+            }
+
+            .title {
+                font-size: 15px;
+            }
+
+            .meta {
+                font-size: 12px;
+            }
+
+            .controls {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="#" class="logo" onclick="loadStories('top', 1); return false;">HN Reader</a>
+        <nav class="nav">
+            <a href="#" onclick="loadStories('top', 1); return false;" class="active" data-section="top">Top</a>
+            <a href="#" onclick="loadStories('new', 1); return false;" data-section="new">New</a>
+            <a href="#" onclick="loadStories('best', 1); return false;" data-section="best">Best</a>
+            <a href="#" onclick="loadStories('ask', 1); return false;" data-section="ask">Ask</a>
+            <a href="#" onclick="loadStories('show', 1); return false;" data-section="show">Show</a>
+            <a href="#" onclick="loadStories('job', 1); return false;" data-section="job">Jobs</a>
+        </nav>
+        <div class="controls">
+            <select class="time-filter" onchange="handleTimeFilter(this.value)">
+                <option value="24">Last 24h</option>
+                <option value="all">All Time</option>
+                <option value="168">Past Week</option>
+                <option value="720">Past Month</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="filters">
+            <div class="filter-group">
+                <label>Min Points:</label>
+                <select id="minPoints" onchange="applyFilters()">
+                    <option value="0">Any</option>
+                    <option value="10">10+</option>
+                    <option value="50">50+</option>
+                    <option value="100">100+</option>
+                    <option value="200">200+</option>
+                    <option value="500">500+</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Min Comments:</label>
+                <select id="minComments" onchange="applyFilters()">
+                    <option value="0">Any</option>
+                    <option value="5">5+</option>
+                    <option value="10">10+</option>
+                    <option value="25">25+</option>
+                    <option value="50">50+</option>
+                    <option value="100">100+</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="content">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Loading stories...</p>
+            </div>
+        </div>
+
+        <div id="loader" class="loading" style="display: none;">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'https://hn.algolia.com/api/v1/search_by_date';
+        const content = document.getElementById('content');
+        const loader = document.getElementById('loader');
+
+        let isLoading = false;
+        let currentSection = 'top';
+        let lastLoadedDate = null;
+        let storyCount = 0;
+
+        // --- Settings and State Management ---
+
+        function getSettings() {
+            const defaults = {
+                section: 'top',
+                time: 'all',
+                minPoints: '100',
+                minComments: '0',
+            };
+            const settings = {
+                section: localStorage.getItem('hnr-section') || defaults.section,
+                time: localStorage.getItem('hnr-time') || defaults.time,
+                minPoints: localStorage.getItem('hnr-minPoints') || defaults.minPoints,
+                minComments: localStorage.getItem('hnr-minComments') || defaults.minComments,
+            };
+            return settings;
+        }
+
+        function saveSettings() {
+            localStorage.setItem('hnr-section', currentSection);
+            localStorage.setItem('hnr-time', document.querySelector('.time-filter').value);
+            localStorage.setItem('hnr-minPoints', document.getElementById('minPoints').value);
+            localStorage.setItem('hnr-minComments', document.getElementById('minComments').value);
+        }
+
+        function applySettings() {
+            const settings = getSettings();
+            currentSection = settings.section;
+            document.querySelector('.time-filter').value = settings.time;
+            document.getElementById('minPoints').value = settings.minPoints;
+            document.getElementById('minComments').value = settings.minComments;
+
+            document.querySelectorAll('.nav a').forEach(a => {
+                a.classList.toggle('active', a.dataset.section === currentSection);
+            });
+        }
+
+        // --- API Fetching and Rendering ---
+
+        async function fetchStoriesForDate(date) {
+            isLoading = true;
+            loader.style.display = 'block';
+
+            const settings = getSettings();
+            const tags = ['story'];
+            if (['ask', 'show', 'job'].includes(currentSection)) {
+                tags.push(`${currentSection}_hn`);
+            }
+
+            const minPoints = parseInt(settings.minPoints);
+            const minComments = parseInt(settings.minComments);
+            
+            const now = date.getTime() / 1000;
+            const startOfDay = new Date(date.setHours(0, 0, 0, 0)).getTime() / 1000;
+            const endOfDay = new Date(date.setHours(23, 59, 59, 999)).getTime() / 1000;
+
+            let numericFilters = [`created_at_i>=${startOfDay}`, `created_at_i<=${endOfDay}`];
+            if (minPoints > 0) numericFilters.push(`points>=${minPoints}`);
+            if (minComments > 0) numericFilters.push(`num_comments>=${minComments}`);
+
+            const url = `${API_BASE_URL}?tags=(${tags.join(',')})&numericFilters=${numericFilters.join(',')}&hitsPerPage=100`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                let stories = data.hits.filter(h => h.title && h.url);
+                
+                // For 'top', we should sort by points. Algolia's default is recent.
+                if (currentSection === 'top' || currentSection === 'best') {
+                    stories.sort((a, b) => (b.points || 0) - (a.points || 0));
+                }
+
+                if (stories.length > 0) {
+                    displayStories(stories, date);
+                    storyCount += stories.length;
+                } else {
+                    displayNoStoriesMessage(date);
+                }
+                
+                lastLoadedDate = new Date(date.getTime());
+                lastLoadedDate.setDate(lastLoadedDate.getDate() - 1);
+
+            } catch (error) {
+                console.error('Failed to load stories:', error);
+                content.innerHTML += '<div class="error">Failed to load stories. Please try again.</div>';
+            } finally {
+                isLoading = false;
+                loader.style.display = 'none';
+            }
+        }
+
+        function displayStories(stories, date) {
+            const dateKey = date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+            
+            let dateHeader = document.querySelector(`[data-date-key="${dateKey}"]`);
+            if (!dateHeader) {
+                const headerHtml = `<div class="date-header" data-date-key="${dateKey}">${dateKey}</div><div class="story-list" data-date-list="${dateKey}"></div>`;
+                content.innerHTML += headerHtml;
+            }
+
+            const storyList = document.querySelector(`[data-date-list="${dateKey}"]`);
+            
+            const htmlParts = stories.map(story => {
+                const url = story.url || `https://news.ycombinator.com/item?id=${story.objectID}`;
+                const domain = story.url ? new URL(story.url).hostname.replace('www.', '') : 'news.ycombinator.com';
+                const points = story.points || 0;
+                const comments = story.num_comments || 0;
+                const timeAgo = formatTimeAgo(story.created_at_i);
+
+                return `
+                    <div class="story">
+                        <div class="left-stats">
+                            <div class="comments">${comments}</div>
+                            <div class="points">${points}</div>
+                        </div>
+                        <div class="content">
+                            <div class="title-row">
+                                <a href="${url}" class="title" target="_blank" rel="noopener">${story.title}</a>
+                                <span class="domain">(${domain})</span>
+                            </div>
+                            <div class="meta">
+                                <span class="meta-item">by <a href="https://news.ycombinator.com/user?id=${story.author}" target="_blank">${story.author}</a></span>
+                                <span class="meta-item">${timeAgo}</span>
+                                <span class="meta-item">
+                                    <a href="https://news.ycombinator.com/item?id=${story.objectID}" target="_blank">discussion</a>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            storyList.innerHTML += htmlParts.join('\n');
+        }
+        
+        function displayNoStoriesMessage(date) {
+            const dateKey = date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+            content.innerHTML += `<div class="date-header date-header-empty">${dateKey}: No stories found matching your criteria.</div>`;
+        }
+
+        function formatTimeAgo(timestamp) {
+            const seconds = Math.floor(Date.now() / 1000 - timestamp);
+            if (seconds < 60) return 'just now';
+            if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+            if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+            if (seconds < 2592000) return `${Math.floor(seconds / 86400)}d ago`;
+            return new Date(timestamp * 1000).toLocaleDateString();
+        }
+
+        // --- Event Handlers ---
+
+        function handleNavClick(section) {
+            currentSection = section;
+            document.querySelectorAll('.nav a').forEach(a => a.classList.remove('active'));
+            document.querySelector(`[data-section="${section}"]`).classList.add('active');
+            resetAndLoad();
+        }
+
+        function applyFilters() {
+            resetAndLoad();
+        }
+        
+        function handleTimeFilter(value) {
+            // This function is kept for compatibility but infinite scroll overrides it.
+            // For now, it just triggers a reload.
+            resetAndLoad();
+        }
+
+        function resetAndLoad() {
+            saveSettings();
+            content.innerHTML = '';
+            storyCount = 0;
+            lastLoadedDate = new Date(); // Start from today
+            fetchStoriesForDate(lastLoadedDate);
+        }
+
+        window.addEventListener('scroll', () => {
+            if (isLoading) return;
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+                if (lastLoadedDate) {
+                    fetchStoriesForDate(lastLoadedDate);
+                }
+            }
+        });
+
+        // --- Initial Load ---
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            applySettings();
+            resetAndLoad();
+            
+            // Attach event listeners
+            document.querySelectorAll('.nav a').forEach(a => {
+                a.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    handleNavClick(a.dataset.section);
+                });
+            });
+        });
+
+    </script>
+</body>
+</html>
