@@ -3,29 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#ff6600">
+    <!-- <meta name="theme-color" content="#ff6600"> -->
     <title>HN Reader</title>
     <style>
+        /* Base reset */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        /* Theme variables */
+        :root {
+            --bg: #f6f6ef;
+            --panel-bg: #ffffff;
+            --text: #000000;
+            --muted: #666666;
+            --accent: #ff6600;
+            --border: #f0f0f0;
+            --header-bg: var(--accent);
+            --card-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --date-bg: #fff5eb;
+            --error-bg: #fff0f0;
+            --error-border: #ffcccc;
+            --loading-spinner-bg: #f3f3f3;
+            --loading-spinner-top: var(--accent);
+            --nav-link-color: #fff;
+        }
+
+        /* Professional dark theme */
+        .dark {
+            --bg: #0b0f12;
+            --panel-bg: #0f1720;
+            --text: #e6eef6;
+            --muted: #9aa6b2;
+            --accent: #ff8a3d;
+            --border: #1e2a33;
+            --header-bg: linear-gradient(90deg, #ff8a3d, #ff6a00);
+            --card-shadow: none;
+            --date-bg: rgba(255,138,61,0.06);
+            --error-bg: #2a1313;
+            --error-border: #5b1e1e;
+            --loading-spinner-bg: #12202a;
+            --loading-spinner-top: var(--accent);
+            --nav-link-color: rgba(255,255,255,0.95);
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: #f6f6ef;
-            color: #000;
+            background: var(--bg);
+            color: var(--text);
             line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .header {
-            background: #ff6600;
+            background: var(--header-bg);
             padding: 6px 12px;
             display: flex;
             align-items: center;
             gap: 15px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: var(--card-shadow);
         }
 
         .logo {
@@ -42,7 +81,7 @@
         }
 
         .nav a, .nav button {
-            color: white;
+            color: var(--nav-link-color);
             text-decoration: none;
             font-size: 14px;
             background: none;
@@ -54,11 +93,11 @@
         }
 
         .nav a:hover, .nav button:hover {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.08);
         }
 
         .nav a.active {
-            background: rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.12);
             font-weight: 600;
         }
 
@@ -70,12 +109,29 @@
         }
 
         .time-filter {
-            background: white;
-            border: 1px solid #ddd;
+            background: var(--panel-bg);
+            border: 1px solid var(--border);
             padding: 4px 8px;
             border-radius: 3px;
             font-size: 13px;
             cursor: pointer;
+            color: var(--text);
+        }
+
+        .theme-toggle {
+            background: transparent;
+            border: 1px solid transparent;
+            padding: 6px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--nav-link-color);
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.06);
         }
 
         .container {
@@ -85,21 +141,22 @@
         }
 
         .story-list {
-            background: white;
+            background: var(--panel-bg);
             border-radius: 6px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border);
         }
 
         .story {
             padding: 15px;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid var(--border);
             display: flex;
             gap: 15px;
             transition: background 0.2s;
         }
 
         .story:hover {
-            background: #fafafa;
+            background: rgba(255,255,255,0.02);
         }
 
         .story:last-child {
@@ -107,7 +164,7 @@
         }
 
         .rank {
-            color: #999;
+            color: var(--muted);
             font-size: 14px;
             min-width: 30px;
             text-align: right;
@@ -120,18 +177,18 @@
             align-items: flex-end;
             gap: 6px;
             font-size: 13px;
-            color: #666;
+            color: var(--muted);
             min-width: 64px;
         }
 
         .left-stats .comments {
             font-weight: 600;
-            color: #333;
+            color: var(--text);
             font-size: 15px;
         }
 
         .left-stats .points {
-            color: #ff6600;
+            color: var(--accent);
             font-weight: 700;
             font-size: 13px;
         }
@@ -150,20 +207,20 @@
         .title {
             font-size: 16px;
             font-weight: 500;
-            color: #000;
+            color: var(--text);
             text-decoration: none;
         }
 
         .title:hover {
-            color: #ff6600;
+            color: var(--accent);
         }
 
         .title:visited {
-            color: #828282;
+            color: #9aa6b2;
         }
 
         .domain {
-            color: #999;
+            color: var(--muted);
             font-size: 12px;
         }
 
@@ -171,7 +228,7 @@
             display: flex;
             gap: 12px;
             font-size: 13px;
-            color: #666;
+            color: var(--muted);
             flex-wrap: wrap;
         }
 
@@ -182,29 +239,29 @@
         }
 
         .meta a {
-            color: #666;
+            color: var(--muted);
             text-decoration: none;
         }
 
         .meta a:hover {
-            color: #ff6600;
+            color: var(--accent);
             text-decoration: underline;
         }
 
         .points {
-            color: #ff6600;
+            color: var(--accent);
             font-weight: 500;
         }
 
         .loading {
             text-align: center;
             padding: 40px;
-            color: #666;
+            color: var(--muted);
         }
 
         .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #ff6600;
+            border: 3px solid var(--loading-spinner-bg);
+            border-top: 3px solid var(--loading-spinner-top);
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -218,31 +275,32 @@
         }
 
         .error {
-            background: #fff0f0;
-            border: 1px solid #ffcccc;
-            color: #cc0000;
+            background: var(--error-bg);
+            border: 1px solid var(--error-border);
+            color: #ffb3a3;
             padding: 15px;
             border-radius: 6px;
             margin: 20px 0;
         }
 
         .filters {
-            background: white;
+            background: var(--panel-bg);
             padding: 15px;
             border-radius: 6px;
             margin-bottom: 15px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: var(--card-shadow);
             display: flex;
             gap: 15px;
             align-items: center;
             flex-wrap: wrap;
+            border: 1px solid var(--border);
         }
 
         .date-header {
-            background: #fff5eb; /* pale orange */
+            background: var(--date-bg); /* pale orange / subtle */
             padding: 8px 12px;
             font-weight: 700;
-            color: #ff6600;
+            color: var(--accent);
             border-radius: 6px 6px 0 0;
             margin-top: 18px;
             display: flex;
@@ -252,7 +310,7 @@
 
         .date-separator {
             height: 1px;
-            background: #eee;
+            background: var(--border);
             margin: 8px 0 16px 0;
             border-radius: 1px;
         }
@@ -265,16 +323,17 @@
 
         .filter-group label {
             font-size: 13px;
-            color: #666;
+            color: var(--muted);
             font-weight: 500;
         }
 
         .filter-group select {
             padding: 6px 10px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border);
             border-radius: 3px;
             font-size: 13px;
-            background: white;
+            background: var(--panel-bg);
+            color: var(--text);
             cursor: pointer;
         }
 
@@ -301,6 +360,20 @@
 <body>
     <div class="header">
         <a href="#" class="logo" onclick="loadStories('top', 1); return false;">HN Reader</a>
+        <div class="controls">
+            <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme" title="Toggle dark / light">
+                <!-- Sun / Moon icon (will be swapped by CSS/JS) -->
+                <svg id="themeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"/>
+                </svg>
+            </button>
+            <select class="time-filter" onchange="handleTimeFilter(this.value)">
+                <option value="24">Last 24h</option>
+                <option value="all">All Time</option>
+                <option value="168">Past Week</option>
+                <option value="720">Past Month</option>
+            </select>
+        </div>
         <nav class="nav">
             <a href="#" onclick="loadStories('top', 1); return false;" class="active" data-section="top">Top</a>
             <a href="#" onclick="loadStories('new', 1); return false;" data-section="new">New</a>
@@ -309,14 +382,7 @@
             <a href="#" onclick="loadStories('show', 1); return false;" data-section="show">Show</a>
             <a href="#" onclick="loadStories('job', 1); return false;" data-section="job">Jobs</a>
         </nav>
-        <div class="controls">
-            <select class="time-filter" onchange="handleTimeFilter(this.value)">
-                <option value="24">Last 24h</option>
-                <option value="all">All Time</option>
-                <option value="168">Past Week</option>
-                <option value="720">Past Month</option>
-            </select>
-        </div>
+
     </div>
 
     <div class="container">
@@ -390,6 +456,9 @@
             localStorage.setItem('hnr-time', document.querySelector('.time-filter').value);
             localStorage.setItem('hnr-minPoints', document.getElementById('minPoints').value);
             localStorage.setItem('hnr-minComments', document.getElementById('minComments').value);
+            // persist theme choice if present
+            const theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+            localStorage.setItem('hnr-theme', theme);
         }
 
         function applySettings() {
@@ -402,6 +471,47 @@
             document.querySelectorAll('.nav a').forEach(a => {
                 a.classList.toggle('active', a.dataset.section === currentSection);
             });
+            // apply saved theme preference (or system preference)
+            applySavedTheme();
+        }
+
+        // --- Theme management ---
+        function getSavedTheme() {
+            return localStorage.getItem('hnr-theme');
+        }
+
+        function applySavedTheme() {
+            const saved = getSavedTheme();
+            if (saved === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else if (saved === 'light') {
+                document.documentElement.classList.remove('dark');
+            } else {
+                // no preference saved -> respect system preference
+                const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (prefersDark) document.documentElement.classList.add('dark');
+            }
+            updateThemeIcon();
+        }
+
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            const theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+            localStorage.setItem('hnr-theme', theme);
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const icon = document.getElementById('themeIcon');
+            if (!icon) return;
+            const isDark = document.documentElement.classList.contains('dark');
+            if (isDark) {
+                // moon icon
+                icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"/>';
+            } else {
+                // sun icon
+                icon.innerHTML = '<path d="M6.76 4.84l-1.8-1.79L3.17 4.83l1.79 1.79 1.8-1.78zM1 13h3v-2H1v2zm10-9h2V1h-2v3zm7.66 1.05l-1.79 1.79 1.79 1.79 1.79-1.79-1.79-1.79zM20 11v2h3v-2h-3zM12 6a6 6 0 100 12 6 6 0 000-12zm0 10a4 4 0 110-8 4 4 0 010 8zm-6.36 4.95l1.79-1.79-1.79-1.79-1.79 1.79 1.79 1.79zM12 23h2v-3h-2v3z" fill="currentColor"/>';
+            }
         }
 
         // --- API Fetching and Rendering ---
@@ -566,6 +676,16 @@
                     handleNavClick(a.dataset.section);
                 });
             });
+            // theme toggle handler
+            const themeBtn = document.getElementById('themeToggle');
+            if (themeBtn) {
+                themeBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    toggleTheme();
+                });
+            }
+            // ensure icon matches initial theme
+            updateThemeIcon();
         });
 
     </script>
