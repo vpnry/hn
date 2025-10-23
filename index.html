@@ -29,6 +29,7 @@
             --loading-spinner-bg: #f3f3f3;
             --loading-spinner-top: var(--accent);
             --nav-link-color: #fff;
+            --base-font-size: 14px;
         }
 
         /* Professional dark theme */
@@ -56,6 +57,7 @@
             line-height: 1.5;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            font-size: var(--base-font-size);
         }
 
         .header {
@@ -70,7 +72,7 @@
         .logo {
             font-weight: bold;
             color: white;
-            font-size: 18px;
+            font-size: calc(var(--base-font-size) + 4px);
             text-decoration: none;
         }
 
@@ -83,7 +85,7 @@
         .nav a, .nav button {
             color: var(--nav-link-color);
             text-decoration: none;
-            font-size: 14px;
+            font-size: var(--base-font-size);
             background: none;
             border: none;
             cursor: pointer;
@@ -113,7 +115,7 @@
             border: 1px solid var(--border);
             padding: 4px 8px;
             border-radius: 3px;
-            font-size: 13px;
+            font-size: calc(var(--base-font-size) - 1px);
             cursor: pointer;
             color: var(--text);
         }
@@ -165,7 +167,7 @@
 
         .rank {
             color: var(--muted);
-            font-size: 14px;
+            font-size: var(--base-font-size);
             min-width: 30px;
             text-align: right;
         }
@@ -176,7 +178,7 @@
             flex-direction: column;
             align-items: flex-end;
             gap: 6px;
-            font-size: 13px;
+            font-size: calc(var(--base-font-size) - 1px);
             color: var(--muted);
             min-width: 64px;
         }
@@ -184,13 +186,13 @@
         .left-stats .comments {
             font-weight: 600;
             color: var(--text);
-            font-size: 15px;
+            font-size: calc(var(--base-font-size) + 1px);
         }
 
         .left-stats .points {
             color: var(--accent);
             font-weight: 700;
-            font-size: 13px;
+            font-size: calc(var(--base-font-size) - 1px);
         }
 
         .content {
@@ -205,7 +207,7 @@
         }
 
         .title {
-            font-size: 16px;
+            font-size: calc(var(--base-font-size) + 2px);
             font-weight: 500;
             color: var(--text);
             text-decoration: none;
@@ -221,13 +223,13 @@
 
         .domain {
             color: var(--muted);
-            font-size: 12px;
+            font-size: calc(var(--base-font-size) - 2px);
         }
 
         .meta {
             display: flex;
             gap: 12px;
-            font-size: 13px;
+            font-size: calc(var(--base-font-size) - 1px);
             color: var(--muted);
             flex-wrap: wrap;
         }
@@ -322,7 +324,7 @@
         }
 
         .filter-group label {
-            font-size: 13px;
+            font-size: calc(var(--base-font-size) - 1px);
             color: var(--muted);
             font-weight: 500;
         }
@@ -331,10 +333,43 @@
             padding: 6px 10px;
             border: 1px solid var(--border);
             border-radius: 3px;
-            font-size: 13px;
+            font-size: calc(var(--base-font-size) - 1px);
             background: var(--panel-bg);
             color: var(--text);
             cursor: pointer;
+        }
+
+        .font-size-control {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--panel-bg);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            padding: 2px;
+        }
+
+        .font-button {
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 2px 8px;
+            border-radius: 3px;
+        }
+
+        .font-button:hover {
+            background: var(--border);
+        }
+
+        .font-size-display {
+            font-size: calc(var(--base-font-size) - 1px);
+            color: var(--text);
+            padding: 0 5px;
+            min-width: 40px;
+            text-align: center;
         }
 
         @media (max-width: 768px) {
@@ -379,12 +414,18 @@
                 display: none; /* Hide rank on mobile to save space */
             }
 
+            .title-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 2px;
+            }
+
             .title {
-                font-size: 15px;
+                font-size: calc(var(--base-font-size) + 1px);
             }
 
             .meta {
-                font-size: 12px;
+                font-size: calc(var(--base-font-size) - 2px);
             }
 
             .filters {
@@ -408,9 +449,14 @@
                     <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"/>
                 </svg>
             </button>
+            <div class="font-size-control">
+                <button id="decreaseFont" class="font-button" title="Decrease font size">-</button>
+                <span id="fontSizeDisplay" class="font-size-display">14px</span>
+                <button id="increaseFont" class="font-button" title="Increase font size">+</button>
+            </div>
             <select class="time-filter" onchange="handleTimeFilter(this.value)">
-                <option value="24">Last 24h</option>
                 <option value="all">All Time</option>
+                <option value="24">Last 24h</option>
                 <option value="168">Past Week</option>
                 <option value="720">Past Month</option>
             </select>
@@ -514,6 +560,9 @@
             });
             // apply saved theme preference (or system preference)
             applySavedTheme();
+
+            const savedFontSize = localStorage.getItem('hnr-fontSize') || '14';
+            changeFontSize(parseInt(savedFontSize, 10));
         }
 
         // --- Theme management ---
@@ -727,7 +776,23 @@
             }
             // ensure icon matches initial theme
             updateThemeIcon();
+
+            document.getElementById('increaseFont').addEventListener('click', () => {
+                let currentSize = parseInt(document.documentElement.style.getPropertyValue('--base-font-size')) || 14;
+                changeFontSize(currentSize + 1);
+            });
+
+            document.getElementById('decreaseFont').addEventListener('click', () => {
+                let currentSize = parseInt(document.documentElement.style.getPropertyValue('--base-font-size')) || 14;
+                changeFontSize(currentSize - 1);
+            });
         });
+
+        function changeFontSize(size) {
+            document.documentElement.style.setProperty('--base-font-size', `${size}px`);
+            document.getElementById('fontSizeDisplay').textContent = `${size}px`;
+            localStorage.setItem('hnr-fontSize', size);
+        }
 
     </script>
 </body>
