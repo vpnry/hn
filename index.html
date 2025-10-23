@@ -479,6 +479,21 @@
             .filter-group {
                 justify-content: space-between;
             }
+
+            #headerNav .filters {
+                background: none;
+                box-shadow: none;
+                border: none;
+                padding: 0;
+                margin-top: 15px;
+                border-top: 1px solid rgba(255,255,255,0.1);
+                padding-top: 15px;
+                gap: 15px;
+            }
+
+            #headerNav .filter-group label {
+                color: var(--nav-link-color);
+            }
         }
     </style>
 </head>
@@ -513,6 +528,30 @@
                 <a href="#" onclick="loadStories('show', 1); return false;" data-section="show">Show</a>
                 <a href="#" onclick="loadStories('job', 1); return false;" data-section="job">Jobs</a>
             </nav>
+            <div class="filters">
+                <div class="filter-group">
+                    <label>Min Points:</label>
+                    <select id="minPoints" onchange="applyFilters()">
+                        <option value="0">Any</option>
+                        <option value="10">10+</option>
+                        <option value="50">50+</option>
+                        <option value="100">100+</option>
+                        <option value="200">200+</option>
+                        <option value="500">500+</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Min Comments:</label>
+                    <select id="minComments" onchange="applyFilters()">
+                        <option value="0">Any</option>
+                        <option value="5">5+</option>
+                        <option value="10">10+</option>
+                        <option value="25">25+</option>
+                        <option value="50">50+</option>
+                        <option value="100">100+</option>
+                    </select>
+                </div>
+            </div>
         </div>
         <button id="menuToggle" class="menu-toggle" aria-label="Open menu">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -521,31 +560,6 @@
     </div>
 
     <div class="container">
-        <div class="filters">
-            <div class="filter-group">
-                <label>Min Points:</label>
-                <select id="minPoints" onchange="applyFilters()">
-                    <option value="0">Any</option>
-                    <option value="10">10+</option>
-                    <option value="50">50+</option>
-                    <option value="100">100+</option>
-                    <option value="200">200+</option>
-                    <option value="500">500+</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label>Min Comments:</label>
-                <select id="minComments" onchange="applyFilters()">
-                    <option value="0">Any</option>
-                    <option value="5">5+</option>
-                    <option value="10">10+</option>
-                    <option value="25">25+</option>
-                    <option value="50">50+</option>
-                    <option value="100">100+</option>
-                </select>
-            </div>
-        </div>
-
         <div id="content">
             <div class="loading">
                 <div class="spinner"></div>
