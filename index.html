@@ -389,25 +389,51 @@
             text-align: center;
         }
 
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+
         @media (max-width: 768px) {
             .header {
+                justify-content: space-between;
+            }
+
+            #headerNav {
+                display: none;
+                position: absolute;
+                top: 50px;
+                left: 0;
+                width: 100%;
+                background: var(--header-bg);
                 flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
+                padding: 15px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            }
+
+            #headerNav.active {
+                display: flex;
+            }
+
+            .menu-toggle {
+                display: block;
             }
 
             .nav {
-                flex-wrap: wrap;
-                gap: 8px;
-                justify-content: center;
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
                 width: 100%;
-                border-top: 1px solid rgba(255,255,255,0.1);
-                padding-top: 10px;
+                margin-top: 15px;
             }
 
             .controls {
+                flex-direction: column;
+                gap: 15px;
                 width: 100%;
-                justify-content: space-between;
             }
 
             .container {
@@ -459,33 +485,38 @@
 <body>
     <div class="header">
         <a href="#" class="logo" onclick="loadStories('top', 1); return false;">HN Reader</a>
-        <div class="controls">
-            <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme" title="Toggle dark / light">
-                <!-- Sun / Moon icon (will be swapped by CSS/JS) -->
-                <svg id="themeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"/>
-                </svg>
-            </button>
-            <div class="font-size-control">
-                <button id="decreaseFont" class="font-button" title="Decrease font size">-</button>
-                <span id="fontSizeDisplay" class="font-size-display">14px</span>
-                <button id="increaseFont" class="font-button" title="Increase font size">+</button>
+        <div id="headerNav">
+            <div class="controls">
+                <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme" title="Toggle dark / light">
+                    <!-- Sun / Moon icon (will be swapped by CSS/JS) -->
+                    <svg id="themeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"/>
+                    </svg>
+                </button>
+                <div class="font-size-control">
+                    <button id="decreaseFont" class="font-button" title="Decrease font size">-</button>
+                    <span id="fontSizeDisplay" class="font-size-display">14px</span>
+                    <button id="increaseFont" class="font-button" title="Increase font size">+</button>
+                </div>
+                <select class="time-filter" onchange="handleTimeFilter(this.value)">
+                    <option value="all">All Time</option>
+                    <option value="24">Last 24h</option>
+                    <option value="168">Past Week</option>
+                    <option value="720">Past Month</option>
+                </select>
             </div>
-            <select class="time-filter" onchange="handleTimeFilter(this.value)">
-                <option value="all">All Time</option>
-                <option value="24">Last 24h</option>
-                <option value="168">Past Week</option>
-                <option value="720">Past Month</option>
-            </select>
+            <nav class="nav">
+                <a href="#" onclick="loadStories('top', 1); return false;" class="active" data-section="top">Top</a>
+                <a href="#" onclick="loadStories('new', 1); return false;" data-section="new">New</a>
+                <a href="#" onclick="loadStories('best', 1); return false;" data-section="best">Best</a>
+                <a href="#" onclick="loadStories('ask', 1); return false;" data-section="ask">Ask</a>
+                <a href="#" onclick="loadStories('show', 1); return false;" data-section="show">Show</a>
+                <a href="#" onclick="loadStories('job', 1); return false;" data-section="job">Jobs</a>
+            </nav>
         </div>
-        <nav class="nav">
-            <a href="#" onclick="loadStories('top', 1); return false;" class="active" data-section="top">Top</a>
-            <a href="#" onclick="loadStories('new', 1); return false;" data-section="new">New</a>
-            <a href="#" onclick="loadStories('best', 1); return false;" data-section="best">Best</a>
-            <a href="#" onclick="loadStories('ask', 1); return false;" data-section="ask">Ask</a>
-            <a href="#" onclick="loadStories('show', 1); return false;" data-section="show">Show</a>
-            <a href="#" onclick="loadStories('job', 1); return false;" data-section="job">Jobs</a>
-        </nav>
+        <button id="menuToggle" class="menu-toggle" aria-label="Open menu">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
 
     </div>
 
@@ -802,6 +833,10 @@
             document.getElementById('decreaseFont').addEventListener('click', () => {
                 let currentSize = parseInt(document.documentElement.style.getPropertyValue('--base-font-size')) || 14;
                 changeFontSize(currentSize - 1);
+            });
+
+            document.getElementById('menuToggle').addEventListener('click', () => {
+                document.getElementById('headerNav').classList.toggle('active');
             });
         });
 
