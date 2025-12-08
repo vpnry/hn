@@ -1,37 +1,33 @@
-export const onRequest = async ({ request, env }) => {
-  const PASSWORD = env.SITE_PASSWORD;   // Set this in Cloudflare Pages Environment Variables
-  const REALM = "_";
+export async function onRequest(context) {
+  const { request, env } = context;
+  const PASSWORD = env.SITE_PASSWORD;  // set this env var in Cloudflare Pages
+  const REALM = "Secure Area";
 
   const authHeader = request.headers.get("Authorization");
 
-  // If no password is set in environment variables
   if (!PASSWORD) {
-    return new Response(
-      "SITE_PASSWORD environment variable not set.",
-      { status: 500 }
-    );
+    return new Response("SITE_PASSWORD environment variable not set.", { status: 500 });
   }
 
-  // If Authorization header is provided
   if (authHeader) {
-    const [type, encoded] = authHeader.split(" ");
-
-    if (type === "Basic") {
-      const decoded = atob(encoded);
-      const [user, pass] = decoded.split(":");
-
-      // Accept ANY username, only check password
-      if (pass === PASSWORD) {
-        return; // allow request to continue to the site
+    const [scheme, encoded] = authHeader.split(" ");
+    if (scheme === "Basic" && encoded) {
+      try {
+        const decoded = atob(encoded);
+        const [user, pass] = decoded.split(":");
+        if (pass === PASSWORD) {
+          return await context.next();  // allow request to continue (to static files or functions)
+        }
+      } catch {
+        // ignore decode errors
       }
     }
   }
 
-  // If missing/wrong password → ask for login
-  return new Response("Authentication Required", {
+  return new Response("Authentication required", {
     status: 401,
     headers: {
       "WWW-Authenticate": `Basic realm="${REALM}"`,
     },
   });
-};
+}
