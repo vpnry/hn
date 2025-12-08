@@ -1,4 +1,6 @@
 export async function onRequest(context) {
+  // a simple cloudflare password protected site
+  // it will check for password set in Pages variable, accept any username
   const { request, env } = context;
   const PASSWORD = env.SITE_PASSWORD;  // set this env var in Cloudflare Pages
   const REALM = "Secure Area";
