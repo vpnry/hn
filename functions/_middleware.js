@@ -6,7 +6,7 @@ export async function onRequest(context) {
   const authHeader = request.headers.get("Authorization");
 
   if (!PASSWORD) {
-    return new Response("SITE_PASSWORD environment variable not set.", { status: 500 });
+    return new Response("Environment variable not set.", { status: 500 });
   }
 
   if (authHeader) {
